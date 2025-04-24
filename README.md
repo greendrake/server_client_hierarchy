@@ -60,3 +60,6 @@ Conversely, the apex CCTV node and Cameras do not run their own goroutines. They
 | Disk Writer | Client | Video stream from Stream | Video files on disk | Client of Stream. Starts writing when attached, stops when detached by it (can’t stop by itself) |
 | Web Broadcaster | Server | Video stream from Stream | Video stream for Browser Session | Client of Stream. Stops (detaches from Stream) when there are no Browser Sessions attached |
 | Browser Session | Client | Video stream from Web Broadcaster | Video stream for connected web browser | Client of Web Broadcaster. Stops (detaches from Web Broadcaster) on browser stopping/pausing video playback |
+
+
+For an example implementation see [github.com/greendrake/cctv](https://github.com/greendrake/cctv).
