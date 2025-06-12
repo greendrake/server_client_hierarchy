@@ -68,6 +68,8 @@ type Node struct {
 	state               atomic.Uint32
 
 	removeAllClientsInProgress bool
+
+	AllowAbruptStop bool
 }
 
 func (n *Node) SetTask(task NodeTask) {
@@ -253,7 +255,7 @@ func (n *Node) Stop() {
 	if n.IsRunning() {
 		n.debug("stopping...")
 		n.state.Store(STATE_STOPPING)
-		if n.task != nil {
+		if n.task != nil && !n.AllowAbruptStop {
 			n.taskStopCommandChannel <- true // command the task to stop
 			<-n.stopChan                     // and now wait for it
 		}
@@ -269,13 +271,15 @@ func (n *Node) Stop() {
 }
 
 func (n *Node) flushQueues() {
-	if n.iQueue != nil {
-		n.iQueue.Wait()
-		n.iQueue = nil
-	}
-	if n.oQueue != nil {
-		n.oQueue.Wait()
-		n.oQueue = nil
+	if !n.AllowAbruptStop {
+		if n.iQueue != nil {
+			n.iQueue.Wait()
+			n.iQueue = nil
+		}
+		if n.oQueue != nil {
+			n.oQueue.Wait()
+			n.oQueue = nil
+		}
 	}
 	for _, cl := range n.Clients {
 		cl.flushQueues()
